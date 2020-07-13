@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import json 
 from .models import *
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 def store(request):
@@ -33,16 +34,18 @@ def checkout(request):
     context = {'items':items, 'order':order}
     return render(request, 'store/checkout.html', context)
 
+@csrf_exempt
 def updateItem(request):
-    data = json.loads(request.data)
-    productId = data['productId']
-    action = data['action']
+    
+    # data = json.loads(request.POST)
+    productId = request.POST['productId']
+    action = request.POST['action']
 
     print('Action:', action)
     print('productId:', productId)
 
-
-    custormer = request.user.customer
+      
+    customer = request.user.customer
     product = Product.objects.get(id=productId)
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
 
